@@ -2,316 +2,249 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Math Drill</title>
+  <title>Math Drill Extended</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
   <style>
-    body { font-family: Arial, sans-serif; background: #f7f9fc; color: #333; text-align: center; padding: 20px; }
-    #setup, #quiz, #summary { max-width: 360px; margin: 20px auto; background: #fff;
-      border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); padding: 16px; }
-    .options-group { margin: 12px 0; text-align: left; }
-    .options-group .grid {
-      display: grid; grid-template-columns: repeat(5, auto); gap: 6px;
-      max-height: 80px; overflow-y: auto; padding: 4px;
-      border: 1px solid #ddd; border-radius: 4px; background: #fafafa;
+    :root { --bg: #f0f4fd; --card-bg: #ffffff; --primary: #5a67d8; --primary-light: #7f9cf5; --error: #f56565; --success: #48bb78; --text: #2d3748; --accent: #ed64a6; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
     }
-    .options-group label { cursor: pointer; font-size: 14px; }
-    select, .btn { font-size: 16px; }
+    h1, h2 { text-align: center; margin-bottom: 16px; }
+    .card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+      padding: 24px;
+      width: 90%;
+      max-width: 400px;
+      margin: 20px 0;
+      transition: transform 0.3s;
+    }
+    .card:hover { transform: translateY(-4px); }
     .btn {
-      padding: 8px 16px; background: #4a90e2; color: #fff;
-      border: none; border-radius: 4px; cursor: pointer; margin: 8px 4px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 24px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+      margin: 8px 4px;
     }
-    .btn:hover { background: #357ab8; }
-    #question { font-size: 28px; margin: 16px 0; }
+    .btn:hover { background: var(--primary-light); transform: scale(1.05); }
+    input[type=number], select {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      margin-top: 8px;
+      font-size: 16px;
+    }
+    #setup p { margin: 12px 0; font-size: 16px; }
+    .subject-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .subject-btn {
+      background: var(--primary);
+      padding: 16px;
+      border-radius: 8px;
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      transition: background 0.3s, transform 0.2s;
+      opacity: 0.6;
+    }
+    .subject-btn.active { opacity: 1; }
+    .subject-btn:hover { background: var(--primary-light); transform: scale(1.05); }
+    #timer { font-size: 20px; font-weight: 600; margin-bottom: 16px; }
+    #question { font-size: 32px; font-weight: 800; margin: 24px 0; }
     #answer {
-      font-size: 22px; width: 120px; text-align: center; padding: 8px;
-      border: 1px solid #ccc; border-radius: 4px;
+      width: 100%;
+      padding: 12px;
+      font-size: 24px;
+      border: 2px solid var(--primary);
+      border-radius: 8px;
+      text-align: center;
     }
-    #feedback { font-size: 26px; width: 100px; display: inline-block; vertical-align: middle; }
-    table {
-      width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 14px;
+    #feedback { font-size: 48px; margin-top: 16px; height: 56px; }
+    #progress-container {
+      width: 100%;
+      background: #e2e8f0;
+      border-radius: 8px;
+      overflow: hidden;
+      height: 12px;
+      margin-bottom: 16px;
     }
-    th, td { border: 1px solid #ddd; padding: 6px; }
-    th { background: #f0f4f8; }
+    #progress-bar { height: 100%; width: 0; background: var(--accent); transition: width 0.3s; }
+    .range-group { margin: 16px 0; text-align: left; }
+    .range-group label { display: block; margin-bottom: 4px; }
+    .range-inputs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .range-inputs input { margin: 0; }
+    .quit-btn { background: var(--error); }
+    #start-center { text-align: center; margin-top: 16px; }
+    /* Enhanced table-grid styling */
+    #table-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 8px; }
+    #table-grid label {
+      display: flex; align-items: center; justify-content: center;
+      border: 2px solid var(--primary); border-radius: 6px;
+      padding: 8px; background: #fff;
+      cursor: pointer; font-weight: 600; font-size: 14px;
+    }
+    #table-grid input { margin: 0; margin-right: 6px; transform: scale(1.2); }
   </style>
 </head>
 <body>
+  <h1>🔢 Math Drill Extended 🔢</h1>
 
-  <div id="setup">
-    <h2>Math Drill</h2>
-    <p>Select mode and subject, then Start (or Finish Now):</p>
+  <div id="setup" class="card">
+    <h2>Prepare Your Session</h2>
+    <p>Choose duration, subject, and ranges:</p>
+    <label>Session duration (min):</label>
+    <input id="sessionMin" type="number" min="1" max="30" value="5">
 
-    <div class="options-group">
-      <strong>Mode:</strong>
-      <select id="mode-select">
-        <option value="fixed">Fixed (30 Q)</option>
-        <option value="intelligent">Intelligent (30 eval + 50 targeted)</option>
-      </select>
+    <div class="subject-grid">
+      <div class="subject-btn" data-subj="tables">Tables ×</div>
+      <div class="subject-btn" data-subj="squares">Squares</div>
+      <div class="subject-btn" data-subj="primes">Primes ×</div>
+      <div class="subject-btn" data-subj="addition">Addition</div>
+      <div class="subject-btn" data-subj="subtraction">Subtraction</div>
+      <div class="subject-btn" data-subj="addsub">Add & Subtract</div>
     </div>
 
-    <div class="options-group">
-      <strong>Subject:</strong>
-      <select id="subject-select">
-        <option value="tables">Multiplication Tables</option>
-        <option value="squares">Squares 1²–20²</option>
-        <option value="primes">Prime Tables (first 20 primes)</option>
-      </select>
+    <div id="tables-options" class="range-group" style="display:none;">
+      <label>Select multiplication tables:</label>
+      <div id="table-grid"></div>
     </div>
 
-    <div id="tables-options" class="options-group">
-      <strong>Tables 1–20:</strong>
-      <div class="grid" id="table-grid"></div>
+    <div id="arith-range" class="range-group" style="display:none;">
+      <label>Operand range (min to max):</label>
+      <div class="range-inputs">
+        <input id="minVal" type="number" min="0" max="100" value="0">
+        <input id="maxVal" type="number" min="0" max="100" value="20">
+      </div>
     </div>
 
-    <button id="start-btn" class="btn">Start</button>
-    <button id="finish-btn" class="btn">Finish Now</button>
+    <div id="start-center">
+      <button id="start-btn" class="btn">🚀 Start Drilling!</button>
+    </div>
   </div>
 
-  <div id="quiz" style="display:none">
-    <div id="question"></div>
-    <input id="answer" autocomplete="off" placeholder="Answer">
-    <span id="feedback"></span>
+  <div id="quiz" class="card" style="display:none;">
+    <div id="timer">Time left: <span id="time">0</span>s</div>
+    <div id="progress-container"><div id="progress-bar"></div></div>
+    <div id="question">0 + 0</div>
+    <input id="answer" type="number" autocomplete="off" placeholder="= ?">
+    <div id="feedback"></div>
+    <button id="quit-btn" class="btn quit-btn">Quit</button>
   </div>
 
-  <div id="summary" style="display:none">
-    <h2>Results</h2>
-    <p id="score"></p>
-    <p id="grade"></p>
-    <h3>All Mistakes</h3>
-    <table>
-      <thead><tr><th>Problem</th><th>You wrote</th><th>Correct</th></tr></thead>
-      <tbody id="mistakes-body"></tbody>
-    </table>
-    <button id="restart-btn" class="btn">Restart</button>
+  <div id="summary" class="card" style="display:none;">
+    <h2>🎉 Session Complete!</h2>
+    <p id="score">Score: 0/0</p>
+    <p id="grade">Grade: 0/10</p>
+    <h3>Review Mistakes:</h3>
+    <table style="width:100%; text-align:left;"><thead><tr><th>Problem</th><th>Your</th><th>Correct</th></tr></thead><tbody id="mistakes-body"></tbody></table>
+    <div id="start-center">
+      <button id="restart-btn" class="btn">🔄 Try Again</button>
+      <button id="quit2-btn" class="btn quit-btn">🚪 Exit</button>
+    </div>
   </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-  const TOTAL_FIXED = 30,
-        EVAL_COUNT  = 30,
-        TRAIN_COUNT = 50,
-        primeList   = [2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71];
+  document.addEventListener('DOMContentLoaded', () => {
+    const setupCard=document.getElementById('setup'), quizCard=document.getElementById('quiz'), summaryCard=document.getElementById('summary');
+    const startBtn=document.getElementById('start-btn'), quitBtn=document.getElementById('quit-btn');
+    const resumeBtn=document.getElementById('restart-btn'), quit2Btn=document.getElementById('quit2-btn');
+    const sessionMin=document.getElementById('sessionMin'), subjectButtons=document.querySelectorAll('.subject-btn');
+    const timerEl=document.getElementById('time'), progressBar=document.getElementById('progress-bar');
+    const questionEl=document.getElementById('question'), answerEl=document.getElementById('answer');
+    const feedbackEl=document.getElementById('feedback'), scoreEl=document.getElementById('score');
+    const gradeEl=document.getElementById('grade'), mistakesBody=document.getElementById('mistakes-body');
+    const tablesOpts=document.getElementById('tables-options'), arithRange=document.getElementById('arith-range');
+    const tableGrid=document.getElementById('table-grid'), minVal=document.getElementById('minVal'), maxVal=document.getElementById('maxVal');
 
-  // UI references
-  const modeSelect    = document.getElementById('mode-select'),
-        subjectSelect = document.getElementById('subject-select'),
-        tableGrid     = document.getElementById('table-grid'),
-        tablesOpts    = document.getElementById('tables-options'),
-        startBtn      = document.getElementById('start-btn'),
-        finishBtn     = document.getElementById('finish-btn'),
-        setup         = document.getElementById('setup'),
-        quiz          = document.getElementById('quiz'),
-        questionEl    = document.getElementById('question'),
-        answerEl      = document.getElementById('answer'),
-        feedbackEl    = document.getElementById('feedback'),
-        summary       = document.getElementById('summary'),
-        scoreEl       = document.getElementById('score'),
-        gradeEl       = document.getElementById('grade'),
-        mistakesBody  = document.getElementById('mistakes-body'),
-        restartBtn    = document.getElementById('restart-btn');
+    let subject='addition', timer, timeLeft, pool=[], totalQ=0, qCount=0, correctCount=0, mistakes=[];
 
-  // State
-  let pool = [], evalQ = [], trainQ = [];
-  let errors = {}, mistakes = [], times = {}, current = null;
-  let qCount = 0, correctCount = 0, startTime = 0;
+    function buildTableGrid(){ tableGrid.innerHTML=''; for(let i=1;i<=20;i++){
+        const lbl=document.createElement('label');
+        lbl.innerHTML=`<input type="checkbox" value="${i}" checked>${i}`;
+        tableGrid.appendChild(lbl);
+    }} buildTableGrid();
 
-  // Build table checkboxes grid
-  function buildTableGrid(){
-    tableGrid.innerHTML = '';
-    for(let n=1; n<=20; n++){
-      const lbl = document.createElement('label');
-      lbl.innerHTML = `<input type="checkbox" value="${n}" checked> ${n}`;
-      tableGrid.appendChild(lbl);
-    }
-  }
-  buildTableGrid();
+    subjectButtons.forEach(btn=>btn.addEventListener('click',()=>{
+        subject=btn.dataset.subj;
+        subjectButtons.forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        tablesOpts.style.display=(subject==='tables')?'block':'none';
+        arithRange.style.display=(['addition','subtraction','addsub'].includes(subject))?'block':'none';
+    }));
+    subjectButtons[3].click();
 
-  // Show/hide tables options
-  subjectSelect.onchange = () => {
-    tablesOpts.style.display = (subjectSelect.value === 'tables') ? '' : 'none';
-  };
-  subjectSelect.dispatchEvent(new Event('change'));
+    function rand(a,b){return Math.floor(Math.random()*(b-a+1))+a;}    
+    function shuffle(a){for(let i=a.length-1;i>0;i--){let j=rand(0,i);[a[i],a[j]]=[a[j],a[i]];}}
 
-  // Utility functions
-  function randInt(a,b){ return Math.floor(Math.random()*(b-a+1)) + a; }
-  function shuffle(arr){
-    for(let i=arr.length-1; i>0; i--){
-      const j = randInt(0,i);
-      [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-  }
-  function weightedPick(arr){
-    let totalW = 0;
-    arr.forEach(q => totalW += (errors[q.key]||0) + 1);
-    let r = Math.random() * totalW;
-    for(const q of arr){
-      r -= (errors[q.key]||0) + 1;
-      if(r <= 0) return q;
-    }
-    return arr[arr.length-1];
-  }
-
-  // Build the pool of problems
-  function makePool(){
-    pool = [];
-    const subj = subjectSelect.value;
-    if(subj === 'tables'){
-      const sel = Array.from(tableGrid.querySelectorAll('input:checked'))
-                       .map(cb => +cb.value);
-      if(!sel.length) sel.push(...Array.from({length:20},(_,i)=>i+1));
-      sel.forEach(a => {
-        for(let b=1; b<=20; b++){
-          pool.push({ key: `${a}x${b}`, correct: a*b });
-        }
-      });
-    }
-    else if(subj === 'squares'){
-      for(let n=1; n<=20; n++){
-        pool.push({ key: `${n}^2`, correct: n*n });
+    function buildPool(){ pool=[];
+      if(subject==='addition'||subject==='addsub'){
+        const min=+minVal.value, max=+maxVal.value;
+        for(let a=min;a<=max;a++)for(let b=min;b<=max;b++)pool.push({k:`${a}+${b}`,c:a+b});
       }
-    }
-    else { // primes
-      primeList.forEach(p => {
-        for(let b=1; b<=20; b++){
-          pool.push({ key: `${p}x${b}`, correct: p*b });
-        }
-      });
-    }
-    shuffle(pool);
-  }
-
-  // Start the drill
-  function startDrill(){
-    const mode = modeSelect.value;
-    makePool();
-
-    const firstCount = (mode === 'fixed') ? TOTAL_FIXED : EVAL_COUNT;
-    evalQ = [];
-    let idx = 0;
-    while(evalQ.length < firstCount){
-      if(idx >= pool.length) idx = 0;
-      evalQ.push(pool[idx++]);
-    }
-    shuffle(evalQ);
-    trainQ = [];
-    errors = {}; mistakes = []; times = {};
-    qCount = 0; correctCount = 0;
-
-    setup.style.display = 'none';
-    summary.style.display = 'none';
-    quiz.style.display = '';
-    nextQuestion();
-  }
-
-  // Next question
-  function nextQuestion(){
-    const mode = modeSelect.value;
-    const maxQ = (mode === 'fixed') ? TOTAL_FIXED : (EVAL_COUNT + TRAIN_COUNT);
-    if(qCount >= maxQ) {
-      return finishDrill();
-    }
-
-    if(evalQ.length){
-      current = evalQ.pop();
-    }
-    else if(mode === 'intelligent' && Object.keys(errors).length){
-      if(!trainQ.length){
-        const topKeys = Object.entries(errors)
-                              .sort((a,b)=>b[1]-a[1])
-                              .slice(0, TRAIN_COUNT)
-                              .map(([k])=>k);
-        trainQ = topKeys.map(k=>{
-          let correct = 0;
-          if(k.includes('^2')){
-            const n = Number(k.replace('^2',''));
-            correct = n*n;
-          } else {
-            const [a,b] = k.split('x').map(Number);
-            correct = a*b;
-          }
-          return { key: k, correct };
-        });
+      if(subject==='subtraction'||subject==='addsub'){
+        const min=+minVal.value, max=+maxVal.value;
+        for(let a=min;a<=max;a++)for(let b=min;b<=a;b++)pool.push({k:`${a}−${b}`,c:a-b});
       }
-      if(trainQ.length){
-        current = weightedPick(trainQ);
-        trainQ = trainQ.filter(q => q.key !== current.key);
-      } else {
-        return finishDrill();
+      if(subject==='tables'){
+        const sel=Array.from(tableGrid.querySelectorAll('input:checked')).map(cb=>+cb.value);
+        for(const a of sel)for(let b=1;b<=12;b++)pool.push({k:`${a}×${b}`,c:a*b});
       }
-    }
-    else {
-      return finishDrill();
-    }
-
-    // Display, converting key back to nice chars
-    questionEl.textContent = current.key
-      .replace(/x/g, '×')
-      .replace(/\^2/g, '²');
-    answerEl.value = '';
-    feedbackEl.textContent = '';
-    answerEl.focus();
-    startTime = performance.now();
-  }
-
-  // Handle input
-  answerEl.addEventListener('input', ()=>{
-    const v = answerEl.value.trim();
-    if(!/^\d+$/.test(v)) return;
-    if(v.length === String(current.correct).length){
-      const dt = ((performance.now() - startTime)/1000).toFixed(2);
-      times[current.key] = times[current.key] || [];
-      times[current.key].push(+dt);
-
-      qCount++;
-      if(Number(v) === current.correct){
-        feedbackEl.textContent = '✔';
-        feedbackEl.style.color = 'green';
-        correctCount++;
-      } else {
-        feedbackEl.textContent = `✖ ${current.correct}`;
-        feedbackEl.style.color = 'red';
-        errors[current.key] = (errors[current.key]||0) + 1;
-        mistakes.push({ key: current.key, given: +v, correct: current.correct });
+      if(subject==='squares'){
+        for(let n=1;n<=20;n++)pool.push({k:`${n}²`,c:n*n});
       }
-      setTimeout(nextQuestion, 500);
+      if(subject==='primes'){
+        [2,3,5,7,11,13,17,19].forEach(p=>{for(let b=1;b<=12;b++){pool.push({k:`${p}×${b}`,c:p*b});}});
+      }
+      shuffle(pool); totalQ=pool.length;
     }
-  });
 
-  // Finish early
-  finishBtn.addEventListener('click', finishDrill);
+    function startTimer(){ const mins=parseInt(sessionMin.value,10)||5; timeLeft=mins*60; timerEl.textContent=timeLeft;
+      timer=setInterval(()=>{timeLeft--;timerEl.textContent=timeLeft;if(timeLeft<=0)finish();},1000);
+    }
 
-  // Show results
-  function finishDrill(){
-    quiz.style.display = 'none';
-    summary.style.display = '';
+    function startGame(){ buildPool(); qCount=0; correctCount=0; mistakes=[];
+      setupCard.style.display='none'; quizCard.style.display='block'; summaryCard.style.display='none';
+      progressBar.style.width='0%'; startTimer(); nextQ();
+    }
 
-    const mode = modeSelect.value;
-    const totalQ = (mode === 'fixed') ? TOTAL_FIXED : (EVAL_COUNT + TRAIN_COUNT);
-    scoreEl.textContent = `Score: ${correctCount}/${totalQ}`;
-    const grade = Math.round(correctCount/totalQ*10),
-          face  = grade >= 8 ? '😊' : grade >= 5 ? '😐' : '😞';
-    gradeEl.textContent = `Grade: ${grade}/10 ${face}`;
+    function nextQ(){ if(qCount>=totalQ) return finish(); current=pool[qCount++]; progressBar.style.width=((qCount-1)/totalQ*100)+'%';
+      questionEl.textContent=current.k; answerEl.value=''; feedbackEl.textContent=''; answerEl.focus();
+    }
 
-    mistakesBody.innerHTML = '';
-    mistakes.forEach(m => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${m.key.replace(/x/g,'×').replace(/\^2/g,'²')}</td>` +
-                     `<td>${m.given}</td><td>${m.correct}</td>`;
-      mistakesBody.appendChild(tr);
+    answerEl.addEventListener('input',()=>{ const v=parseInt(answerEl.value,10); if(isNaN(v))return;
+      if(answerEl.value.trim().length===String(current.c).length){
+        if(v===current.c){correctCount++;feedbackEl.textContent='✔';feedbackEl.style.color='var(--success)';setTimeout(nextQ,500);} else {feedbackEl.textContent=`✖ ${current.c}`;feedbackEl.style.color='var(--error)';mistakes.push({k:current.k,g:v,c:current.c});setTimeout(nextQ,2000);} }
     });
-  }
 
-  // Start / Restart handlers
-  startBtn.addEventListener('click', ()=>{
-    startBtn.disabled = true;
-    startDrill();
-  });
-  restartBtn.addEventListener('click', ()=>{
-    startBtn.disabled = false;
-    setup.style.display = '';
-    summary.style.display = 'none';
-  });
+    function finish(){ clearInterval(timer); quizCard.style.display='none'; summaryCard.style.display='block';
+      scoreEl.textContent=`Score: ${correctCount}/${totalQ}`; const grade=Math.round(correctCount/totalQ*10); const face=grade>=8?'😊':grade>=5?'😐':'😞'; gradeEl.textContent=`Grade: ${grade}/10 ${face}`;
+      mistakesBody.innerHTML=''; mistakes.forEach(m=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${m.k}</td><td>${m.g}</td><td>${m.c}</td>`;mistakesBody.appendChild(tr);});
+    }
 
-});
+    startBtn.addEventListener('click',startGame);
+    quitBtn.addEventListener('click',()=>{clearInterval(timer);quizCard.style.display='none';setupCard.style.display='block';});
+    resumeBtn.addEventListener('click',()=>{clearInterval(timer);summaryCard.style.display='none';setupCard.style.display='block';});
+    quit2Btn.addEventListener('click',()=>{summaryCard.style.display='none';setupCard.style.display='block';});
+  });
 </script>
 </body>
 </html>
-
